@@ -11,14 +11,11 @@ namespace RestQueue.API.Controllers
     [Route("[controller]")]
     public class TestsController : ControllerBase
     {
-        private static ControllerBase? _requestsController;
-        public TestsController(IResponseHandler responseHandler)
+        public TestsController()
         {
-            // This is a hack for now to register the Url of the request controller
-            _requestsController ??= new RequestsController(responseHandler);
         }
 
-        [HttpGet("")]
+        [HttpGet("hello")]
         public string Hello()
         {
             return "Hello world!";

@@ -51,7 +51,7 @@ namespace RestQueue.API
             return HttpClientFactory.Create();
 #else
             // ... but I would like to do something like this
-            var webApplicationFactory = new WebApplicationFactory<Startup>();
+            var webApplicationFactory = new Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Startup>();
             return webApplicationFactory.CreateDefaultClient();
 #endif
         }
