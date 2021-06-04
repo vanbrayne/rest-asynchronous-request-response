@@ -29,6 +29,7 @@ namespace RestQueue.API
             _requestWorker = new BackgroundQueueWorker<RequestData>(ExecuteRequestAndMakeResponseAvailable);
         }
 
+        // ReSharper disable once UnusedMember.Global
         public async Task InvokeAsync(HttpContext context)
         {
             if (PreferAsync(context.Request))

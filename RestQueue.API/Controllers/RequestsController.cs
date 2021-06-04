@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
-using System.Threading;
-using Microsoft.AspNetCore.Mvc.Routing;
 using RestQueue.API.Support;
 
 namespace RestQueue.API.Controllers

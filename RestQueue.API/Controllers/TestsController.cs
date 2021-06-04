@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Diagnostics;
-using System.Net;
 using System.Threading;
-using RestQueue.API.Support;
 
 namespace RestQueue.API.Controllers
 {
@@ -11,10 +9,6 @@ namespace RestQueue.API.Controllers
     [Route("[controller]")]
     public class TestsController : ControllerBase
     {
-        public TestsController()
-        {
-        }
-
         [HttpGet("hello")]
         public string Hello()
         {

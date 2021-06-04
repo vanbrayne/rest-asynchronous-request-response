@@ -1,5 +1,6 @@
-# rest-asynchronous-request-response
-Proof of concept for a .NET Core middleware that can make any API method support asynchronous execution.
+# Asynchronous request-response
+
+This project is a proof of concept for a .NET Core middleware that can make any API method support asynchronous execution.
 
 ## Background
 
@@ -14,7 +15,7 @@ To enable all methods of a REST API to honor the `respond-async` preference.
 
 ## Solution
 
-I have created an ASP.NET Core middleware that detects the `respond-async` preference and then enqueues the request for later execution and returns a `202 Accepted` response to the calling client. That response contains the URL where the client can poll for the final response. A background thread executes the requests one-by-one and stores the response in a data dictionary.
+I have created an ASP.NET Core middleware, `MaybeRunAsynchronously`, that detects if there is a `respond-async` preference in the HTTP headers. If so, it will enqueue the request for later execution and immediately returns a `202 Accepted` response to the calling client. That response contains the URL where the client can poll for the final response. A background thread evenutally executes the request and then stores the response in a data dictionary to be fetched later by the client.
 
 ## How to use
 
