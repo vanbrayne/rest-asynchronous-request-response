@@ -10,11 +10,11 @@ namespace RestQueue.API.Controllers
     [Route("")]
     public class RequestsController : ControllerBase
     {
-        private readonly IResponseHandler _responseHandler;
+        private readonly IRequestExecutor _requestExecutor;
 
-        public RequestsController(IResponseHandler responseHandler)
+        public RequestsController(IRequestExecutor requestExecutor)
         {
-            _responseHandler = responseHandler;
+            _requestExecutor = requestExecutor;
         }
 
         [HttpGet("")]
@@ -23,7 +23,7 @@ namespace RestQueue.API.Controllers
             var newGuid = Guid.NewGuid();
             var responseUrl = Url.Link("GetResponse",
                 new Dictionary<string, object> { { "requestId", newGuid } });
-            _responseHandler.RegisterUrlFormat(responseUrl.Replace(newGuid.ToString(), @"{0}"));
+            _requestExecutor.RegisterUrlFormat(responseUrl.Replace(newGuid.ToString(), @"{0}"));
             // Hack: By having this as the landing page, we make sure that we will do the register
             // step in the constructor
             return "PoC for asynchronous REST calls." +
@@ -36,8 +36,8 @@ namespace RestQueue.API.Controllers
         [HttpGet("requests/{requestId}", Name = "GetResponse")]
         public ActionResult GetResponse(Guid requestId)
         {
-            var response = _responseHandler.GetResponse(requestId);
-            if (response.StatusCode == HttpStatusCode.Accepted) return new AcceptedResult(_responseHandler.ResponseUrl(requestId), response);
+            var response = _requestExecutor.GetResponse(requestId);
+            if (response.StatusCode == HttpStatusCode.Accepted) return new AcceptedResult(_requestExecutor.ResponseUrl(requestId), response);
             return Ok(response);
         }
     }

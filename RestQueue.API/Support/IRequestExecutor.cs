@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using RestQueue.API.Model;
 
 namespace RestQueue.API.Support
 {
-    public interface IResponseHandler
+    public interface IRequestExecutor
     {
-        void AddResponse(Guid requestId, ResponseData responseData);
+        Task ExecuteRequestAndMakeResponseAvailable(RequestData requestData, CancellationToken cancellationToken);
         ResponseData GetResponse(Guid requestId);
-        Task AcceptedResponse(HttpResponse response, Guid requestId);
+        Task SetResponseToAcceptedWithLocationOfFinalResponse(HttpResponse response, Guid requestId);
         void RegisterUrlFormat(string urlFormat);
         string ResponseUrl(Guid requestId);
     }

@@ -7,11 +7,11 @@ namespace RestQueue.API.Support
 {
     public class BackgroundQueueWorker<T>
     {
-        private readonly Func<T, Task> _asyncMethod;
+        private readonly Func<T, CancellationToken, Task> _asyncMethod;
         private readonly ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
         private Thread? _queueExecution;
 
-        public BackgroundQueueWorker(Func<T, Task> asyncMethod)
+        public BackgroundQueueWorker(Func<T, CancellationToken, Task> asyncMethod)
         {
             _asyncMethod = asyncMethod;
         }
@@ -47,7 +47,7 @@ namespace RestQueue.API.Support
                     var requestData = item;
                     // This way to call an async method from a synchronous method was found here:
                     // https://stackoverflow.com/questions/40324300/calling-async-methods-from-non-async-code
-                    Task.Run(() => _asyncMethod(requestData)).Wait();
+                    Task.Run(() => _asyncMethod(requestData, CancellationToken.None)).Wait();
                 }
                 catch (Exception)
                 {
