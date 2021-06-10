@@ -20,6 +20,9 @@ namespace RestQueue.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IRequestExecutor, RequestExecutor>();
+            services.AddHostedService<BackgroundQueueWorker>();
+            services.AddSingleton<IBackgroundTaskQueue>(ctx =>
+                new BackgroundTaskQueue(100));
             services.AddControllers();
         }
 

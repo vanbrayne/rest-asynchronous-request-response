@@ -8,7 +8,7 @@ namespace RestQueue.API.Support
 {
     public interface IRequestExecutor
     {
-        Task ExecuteRequestAndMakeResponseAvailable(RequestData requestData, CancellationToken cancellationToken);
+        ValueTask ExecuteRequestAndMakeResponseAvailable(RequestData requestData, CancellationToken cancellationToken);
         ResponseData GetResponse(Guid requestId);
         Task SetResponseToAcceptedWithLocationOfFinalResponse(HttpResponse response, Guid requestId);
         void RegisterUrlFormat(string urlFormat);

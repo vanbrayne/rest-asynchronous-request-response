@@ -35,7 +35,7 @@ namespace RestQueue.API.Support
         /// <param name="requestData"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task ExecuteRequestAndMakeResponseAvailable(RequestData requestData, CancellationToken cancellationToken)
+        public async ValueTask ExecuteRequestAndMakeResponseAvailable(RequestData requestData, CancellationToken cancellationToken)
         {
             ResponseData responseData;
             var requestMessage = requestData.ToHttpRequestMessage();

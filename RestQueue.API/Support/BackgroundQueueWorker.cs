@@ -2,58 +2,47 @@
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace RestQueue.API.Support
 {
-    public class BackgroundQueueWorker<T>
+    public class BackgroundQueueWorker : BackgroundService
     {
-        private readonly Func<T, CancellationToken, Task> _asyncMethod;
-        private readonly ConcurrentQueue<T> _queue = new ConcurrentQueue<T>();
-        private Thread? _queueExecution;
+        public IBackgroundTaskQueue TaskQueue { get; }
 
-        public BackgroundQueueWorker(Func<T, CancellationToken, Task> asyncMethod)
+        public BackgroundQueueWorker(IBackgroundTaskQueue taskQueue)
         {
-            _asyncMethod = asyncMethod;
+            TaskQueue = taskQueue;
         }
 
-        public void Enqueue(T data)
+        /// <inheritdoc />
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _queue.Enqueue(data);
-            MaybeStartBackgroundJob();
+            await BackgroundProcessing(stoppingToken);
         }
 
-        /// <summary>
-        /// Start an internal queue, if it hasn't started yet
-        /// </summary>
-        private void MaybeStartBackgroundJob()
+        private async Task BackgroundProcessing(CancellationToken stoppingToken)
         {
-            lock (_queue)
+            while (!stoppingToken.IsCancellationRequested)
             {
-                if (_queueExecution != null && _queueExecution.IsAlive) return;
-                _queueExecution = new Thread(BackgroundJob);
-                _queueExecution.Start();
-            }
-        }
+                var workItem = 
+                    await TaskQueue.DequeueAsync(stoppingToken);
 
-        /// <summary>
-        /// While there are items on the queue, take action on them. Quit when no more items.
-        /// </summary>
-        private void BackgroundJob()
-        {
-            while (_queue.TryDequeue(out var item))
-            {
                 try
                 {
-                    var requestData = item;
-                    // This way to call an async method from a synchronous method was found here:
-                    // https://stackoverflow.com/questions/40324300/calling-async-methods-from-non-async-code
-                    Task.Run(() => _asyncMethod(requestData, CancellationToken.None)).Wait();
+                    await workItem(stoppingToken);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // Log this, but never fail.
+                    //
                 }
             }
+        }
+
+        public override async Task StopAsync(CancellationToken stoppingToken)
+        {
+            await base.StopAsync(stoppingToken);
         }
     }
 }

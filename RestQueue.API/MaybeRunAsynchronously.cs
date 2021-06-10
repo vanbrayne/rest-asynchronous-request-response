@@ -18,14 +18,13 @@ namespace RestQueue.API
         private const string IsRunningAsynchronouslyHeader = "X-Is-Running-Asynchronously";
         private readonly RequestDelegate _next;
         private readonly IRequestExecutor _requestExecutor;
-        private readonly BackgroundQueueWorker<RequestData> _requestWorker;
+        private readonly IBackgroundTaskQueue _taskQueue;
 
-        public MaybeRunAsynchronously(RequestDelegate next, IRequestExecutor requestExecutor)
+        public MaybeRunAsynchronously(RequestDelegate next, IRequestExecutor requestExecutor, IBackgroundTaskQueue taskQueue)
         {
             _next = next;
             _requestExecutor = requestExecutor; // Execute request and store the response for later retrieval
-            // Register a worker to handle requests on a background thread for later execution
-            _requestWorker = new BackgroundQueueWorker<RequestData>(_requestExecutor.ExecuteRequestAndMakeResponseAvailable);
+            _taskQueue = taskQueue;
         }
 
         // ReSharper disable once UnusedMember.Global
@@ -57,7 +56,8 @@ namespace RestQueue.API
         {
             var requestData = await new RequestData().FromAsync(request);
             requestData.Headers.Add(IsRunningAsynchronouslyHeader, "TRUE");
-            _requestWorker.Enqueue(requestData);
+            await _taskQueue.EnqueueAsync(token =>
+                 _requestExecutor.ExecuteRequestAndMakeResponseAvailable(requestData, token));
             return requestData.Id;
         }
     }
