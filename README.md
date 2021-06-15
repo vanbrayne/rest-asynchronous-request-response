@@ -32,9 +32,9 @@ In the browser:
 
 ### Don't call the application server
 
-The middleware method `MaybeRunAsynchronously.GetHttpClientForInternalCalls()` is where we create an `HttpClient` to use when we want to execute a request on the background thread. Currently it creates uses `HttpClientFactory.Create()`, but that means that all calls are routed through the application server (typically IIS). This should be improved for a number of reasons where the main reason is that the applicaiton server will timeout if the execution of a request takes too long time (default for IIS is 110 seconds).
+The constructor for `RequestExecutor` is where we create an `HttpClient` to use when we want to execute a request on the background thread. Currently it uses `HttpClientFactory.Create()` to create an HTTP client, which means that all calls are routed through the application server (typically IIS). This should be improved for a number of reasons where the main reason is that the application server will timeout if the execution of a request takes too long time (default for IIS is 110 seconds).
 
-In the code I have shown with an example what I want to achieve; I try to use `Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<T>`. It is just there to illustrate what I want to do. I don´'t want to rely on a NuGet library aimed at testing and besides that I could make that code work as it conflicts with IIS:
+In the code I have shown with an example what I would like to achieve; I try to use `Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<T>`, which creates an HTTP client that runs internally, i.e. not through the IIS. It is just there to illustrate what I want to do. I don´'t want to rely on a NuGet library aimed at testing and besides that I could make that code work as it conflicts with IIS:
 > System.InvalidOperationException: 'Application is running inside IIS process but is not configured to use IIS server.'
 
 ### Location URL is a hack

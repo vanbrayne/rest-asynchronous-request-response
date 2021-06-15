@@ -56,8 +56,9 @@ namespace RestQueue.API
         {
             var requestData = await new RequestData().FromAsync(request);
             requestData.Headers.Add(IsRunningAsynchronouslyHeader, "TRUE");
-            await _taskQueue.EnqueueAsync(token =>
-                 _requestExecutor.ExecuteRequestAndMakeResponseAvailable(requestData, token));
+            Func<CancellationToken, ValueTask> workItem = token =>
+                _requestExecutor.ExecuteRequestAndMakeResponseAvailable(requestData, token);
+            await _taskQueue.EnqueueAsync(workItem);
             return requestData.Id;
         }
     }
